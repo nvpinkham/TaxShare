@@ -1,0 +1,11 @@
+Package: TaxShare
+Title: Compare Shared and Unique Taxa Between Groups
+Version: 0.0.0.9000
+Authors@R: 
+    person("Nick", "Pinkham", , "nickvpinkham@gmail.com", role = c("aut", "cre"))
+Description: Compare OTU abundances between two groups (e.g. sick and healthy) and summarizes shared and unique taxa at a given taxonomic level and include p-values for group differences.
+License: `use_mit_license()`, `use_gpl3_license()` or friends to pick a
+    license
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.2
