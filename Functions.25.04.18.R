@@ -38,7 +38,7 @@ tax.shared.table <- function (otu, var, group1, group2, tax.level, PresAbs = F,
     gg <- "number of discrete OTUs"
     group1.otus[group1.otus > 0] <- 1
     group2.otus[group2.otus > 0] <- 1
-  }else {
+  }else{
     gg <- ""
   }
   group1.otus.shared <- group1.otus.unique <- group1.otus
@@ -117,8 +117,7 @@ tax.shared.table <- function (otu, var, group1, group2, tax.level, PresAbs = F,
       if (length(aa) > 0) {
         tax.res2[, i] <- tax.res[, aa]
         colnames(tax.res2)[i] <- colnames(tax.res)[aa]
-      }
-      else {
+      }else {
         colnames(tax.res2)[i] <- taxa2include[i]
         tax.res2[, i] <- 0
       }
