@@ -25,107 +25,109 @@
 #' @importFrom stats wilcox.test p.adjust
 #' @importFrom matrixStats rowMedians
 #' @export
-tax.shared.table <- function (otu, var, group1, group2, tax.level, PresAbs = F,
-                              log = T, taxa2include, round.to = 3, add.n = T)
+tax.shared.table <- function (otu, var, group1, group2, tax.level = tax$family, PresAbs = F, 
+    log = T, taxa2include, round.to = 3, add.n = T) 
 {
-  if (PresAbs & log) {
-    warning("Log transformation not informative when using PresAbs")
-  }
-  var <- as.factor(var)
-  group1.otus <- otu[var == group1, ]
-  group2.otus <- otu[var == group2, ]
-  if (PresAbs) {
-    gg <- "number of discrete OTUs"
-    group1.otus[group1.otus > 0] <- 1
-    group2.otus[group2.otus > 0] <- 1
-  }else{
-    gg <- ""
-  }
-  group1.otus.shared <- group1.otus.unique <- group1.otus
-  group2.otus.shared <- group2.otus.unique <- group2.otus
-  group1.otus.unique[, colSums(group2.otus) > 0] <- 0
-  group1.otus.shared[, colSums(group1.otus.unique) > 0] <- 0
-  group2.otus.unique[, colSums(group1.otus) > 0] <- 0
-  group2.otus.shared[, colSums(group2.otus.unique) > 0] <- 0
-  group1.fam.unique <- aggregate(t(group1.otus.unique), list(tax.level),
-                                 sum)
-  group1.fam.shared <- aggregate(t(group1.otus.shared), list(tax.level),
-                                 sum)
-  group2.fam.unique <- aggregate(t(group2.otus.unique), list(tax.level),
-                                 sum)
-  group2.fam.shared <- aggregate(t(group2.otus.shared), list(tax.level),
-                                 sum)
-  g1.u <- rowMedians(group1.fam.unique[, -1])
-  names(g1.u) <- group1.fam.unique$Group.1
-  g1.s <- rowMedians(group1.fam.shared[, -1])
-  names(g1.s) <- group1.fam.shared$Group.1
-  g2.u <- rowMedians(group2.fam.unique[, -1])
-  names(g2.u) <- group2.fam.unique$Group.1
-  g2.s <- rowMedians(group2.fam.shared[, -1])
-  names(g2.s) <- group2.fam.shared$Group.1
-  ps.unique.l <- ps.unique.g <- ps.shared <- NULL
-  for (i in 1:nrow(group1.fam.unique)) {
-    ps.unique.l[i] <- wilcox.test(t(group1.fam.unique[i,
-                                                      -1]), t(group2.fam.unique[i, -1]), alternative = "less",
-                                  exact = F)$p.value
-    ps.shared[i] <- wilcox.test(t(group1.fam.shared[i, -1]),
-                                t(group2.fam.shared[i, -1]), exact = F)$p.value
-    ps.unique.g[i] <- wilcox.test(t(group1.fam.unique[i,
-                                                      -1]), t(group2.fam.unique[i, -1]), alternative = "greater",
-                                  exact = F)$p.value
-  }
-  ps.unique.l <- p.adjust(ps.unique.l, method = "fdr")
-  ps.shared <- p.adjust(ps.shared, method = "fdr")
-  ps.unique.g <- p.adjust(ps.unique.g, method = "fdr")
-  ps.unique.l <- round(ps.unique.l, round.to)
-  ps.shared <- round(ps.shared, round.to)
-  ps.unique.g <- round(ps.unique.g, round.to)
-  hh <- which(ps.unique.g > 0.05 | is.na(ps.unique.g))
-  ps.unique.g[hh] <- " "
-  ps.unique.g[-hh] <- paste0("(unique greater p=", ps.unique.g[-hh],
-                             ")")
-  kk <- which(ps.shared > 0.05 | is.na(ps.shared))
-  ps.shared[kk] <- " "
-  ps.shared[-kk] <- paste0("(shared p=", ps.shared[-kk], ")")
-  jj <- which(ps.unique.l > 0.05 | is.na(ps.unique.l))
-  ps.unique.l[jj] <- " "
-  ps.unique.l[-jj] <- paste0("(unique less p=", ps.unique.l[-jj],
-                             ")")
-  tax.res <- rbind(g1.u, g1.s, g2.s, g2.u)
-  if (add.n) {
-    otu.pick <- otu[var %in% c(group1, group2), ]
-    ns <- table(tax.level[colSums(otu.pick) > 0])
-    colnames(tax.res)[match(names(ns), colnames(tax.res))] <- paste0(names(ns),
-                                                                     "(nOTUs=", ns, ")")
-  }
-  colnames(tax.res) <- paste0(colnames(tax.res), ps.unique.l,
-                              ps.shared, ps.unique.g)
-  rownames(tax.res) <- c(paste0("unique to ", group1), paste0("shared - ",
-                                                             gg, "in", group1), paste0("shared - ", gg, "in", group2),
-                         paste0("unique to ", group2))
-  tax.res <- tax.res[, colSums(tax.res) != 0]
-  if (log) {
-    tax.res <- log10(as.matrix(tax.res) + 1)
-  }
-  tax.res <- tax.res[, order(colSums(tax.res), decreasing = F)]
-  if (!missing(taxa2include)) {
-    print(taxa2include)
-    tax.res2 <- as.data.frame(matrix(nrow = 4, ncol = length(taxa2include)))
-    row.names(tax.res2) <- row.names(tax.res)
-    for (i in 1:length(taxa2include)) {
-      aa <- grep(taxa2include[i], colnames(tax.res))
-      if (length(aa) > 0) {
-        tax.res2[, i] <- tax.res[, aa]
-        colnames(tax.res2)[i] <- colnames(tax.res)[aa]
-      }else {
-        colnames(tax.res2)[i] <- taxa2include[i]
-        tax.res2[, i] <- 0
-      }
+    if (PresAbs & log) {
+        warning("Log transformation not informative when using PresAbs")
     }
-    tax.res <- as.matrix(tax.res2)
-  }
-  colnames(tax.res) <- gsub("(", " (", colnames(tax.res), fixed = T)
-  return(tax.res)
+    var <- as.factor(var)
+    group1.otus <- otu[var == group1, ]
+    group2.otus <- otu[var == group2, ]
+    if (PresAbs) {
+        gg <- "number of discrete OTUs"
+        group1.otus[group1.otus > 0] <- 1
+        group2.otus[group2.otus > 0] <- 1
+    }
+    else {
+        gg <- ""
+    }
+    group1.otus.shared <- group1.otus.unique <- group1.otus
+    group2.otus.shared <- group2.otus.unique <- group2.otus
+    group1.otus.unique[, colSums(group2.otus) > 0] <- 0
+    group1.otus.shared[, colSums(group1.otus.unique) > 0] <- 0
+    group2.otus.unique[, colSums(group1.otus) > 0] <- 0
+    group2.otus.shared[, colSums(group2.otus.unique) > 0] <- 0
+    group1.fam.unique <- aggregate(t(group1.otus.unique), list(tax.level), 
+        sum)
+    group1.fam.shared <- aggregate(t(group1.otus.shared), list(tax.level), 
+        sum)
+    group2.fam.unique <- aggregate(t(group2.otus.unique), list(tax.level), 
+        sum)
+    group2.fam.shared <- aggregate(t(group2.otus.shared), list(tax.level), 
+        sum)
+    g1.u <- rowMedians(group1.fam.unique[, -1])
+    names(g1.u) <- group1.fam.unique$Group.1
+    g1.s <- rowMedians(group1.fam.shared[, -1])
+    names(g1.s) <- group1.fam.shared$Group.1
+    g2.u <- rowMedians(group2.fam.unique[, -1])
+    names(g2.u) <- group2.fam.unique$Group.1
+    g2.s <- rowMedians(group2.fam.shared[, -1])
+    names(g2.s) <- group2.fam.shared$Group.1
+    ps.unique.l <- ps.unique.g <- ps.shared <- NULL
+    for (i in 1:nrow(group1.fam.unique)) {
+        ps.unique.l[i] <- wilcox.test(t(group1.fam.unique[i, 
+            -1]), t(group2.fam.unique[i, -1]), alternative = "less", 
+            exact = F)$p.value
+        ps.shared[i] <- wilcox.test(t(group1.fam.shared[i, -1]), 
+            t(group2.fam.shared[i, -1]), exact = F)$p.value
+        ps.unique.g[i] <- wilcox.test(t(group1.fam.unique[i, 
+            -1]), t(group2.fam.unique[i, -1]), alternative = "greater", 
+            exact = F)$p.value
+    }
+    ps.unique.l <- p.adjust(ps.unique.l, method = "fdr")
+    ps.shared <- p.adjust(ps.shared, method = "fdr")
+    ps.unique.g <- p.adjust(ps.unique.g, method = "fdr")
+    ps.unique.l <- round(ps.unique.l, round.to)
+    ps.shared <- round(ps.shared, round.to)
+    ps.unique.g <- round(ps.unique.g, round.to)
+    hh <- which(ps.unique.g > 0.05 | is.na(ps.unique.g))
+    ps.unique.g[hh] <- " "
+    ps.unique.g[-hh] <- paste0("(unique greater p=", ps.unique.g[-hh], 
+        ")")
+    kk <- which(ps.shared > 0.05 | is.na(ps.shared))
+    ps.shared[kk] <- " "
+    ps.shared[-kk] <- paste0("(shared p=", ps.shared[-kk], ")")
+    jj <- which(ps.unique.l > 0.05 | is.na(ps.unique.l))
+    ps.unique.l[jj] <- " "
+    ps.unique.l[-jj] <- paste0("(unique less p=", ps.unique.l[-jj], 
+        ")")
+    tax.res <- rbind(g1.u, g1.s, g2.s, g2.u)
+    if (add.n) {
+        otu.pick <- otu[var %in% c(group1, group2), ]
+        ns <- table(tax.level[colSums(otu.pick) > 0])
+        colnames(tax.res)[match(names(ns), colnames(tax.res))] <- paste0(names(ns), 
+            "(nOTUs=", ns, ")")
+    }
+    colnames(tax.res) <- paste0(colnames(tax.res), ps.unique.l, 
+        ps.shared, ps.unique.g)
+    rownames(tax.res) <- c(paste0("unique to", group1), paste0("shared - ", 
+        gg, "in", group1), paste0("shared - ", gg, "in", group2), 
+        paste0("unique to ", group2))
+    tax.res <- tax.res[, colSums(tax.res) != 0]
+    if (log) {
+        tax.res <- log10(as.matrix(tax.res) + 1)
+    }
+    tax.res <- tax.res[, order(colSums(tax.res), decreasing = F)]
+    if (!missing(taxa2include)) {
+        print(taxa2include)
+        tax.res2 <- as.data.frame(matrix(nrow = 4, ncol = length(taxa2include)))
+        row.names(tax.res2) <- row.names(tax.res)
+        for (i in 1:length(taxa2include)) {
+            aa <- grep(taxa2include[i], colnames(tax.res))
+            if (length(aa) > 0) {
+                tax.res2[, i] <- tax.res[, aa]
+                colnames(tax.res2)[i] <- colnames(tax.res)[aa]
+            }
+            else {
+                colnames(tax.res2)[i] <- taxa2include[i]
+                tax.res2[, i] <- 0
+            }
+        }
+        tax.res <- as.matrix(tax.res2)
+    }
+    colnames(tax.res) <- gsub("(", " (", colnames(tax.res), fixed = T)
+    return(tax.res)
 }
 
 #' Visualize Shared and Unique Taxa Between Groups
