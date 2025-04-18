@@ -202,3 +202,8 @@ tax.shared <- function (otu, var, group1, group2, tax.level = tax$family, PresAb
          cex = 0.75)
   return(tax.res)
 }
+
+
+rowMedians <- function(x){
+    apply(x, 1, median)
+}
