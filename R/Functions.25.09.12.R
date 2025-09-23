@@ -265,6 +265,7 @@ tax.shared.plot <- function (otu.input,
                              taxa2include,
                              fdr = T,
                              use.median = T,
+                             simple.names = F,
                              round.to =  3) {
 
   tax.res <- tax.shared.table(otu.input = otu.input,
@@ -341,6 +342,10 @@ tax.shared.plot <- function (otu.input,
           las = 1,
           col = c(color1, shared.1.col,
                   shared.2.col, color2))
+
+  if(simple.names){
+    labs <- sapply(strsplit(labs, " "), "[[", 1)
+  }
 
   axis(2,
        at= (1:length(labs) * 1.2) - .5,
