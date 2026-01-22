@@ -23,5 +23,12 @@ The resulting table reports the proportion and abundance of taxa in each categor
 
 The package includes visualization tools that generate stacked bar plots summarizing mean (or user-defined) population sizes across unique and shared taxa, enabling clear interpretation of taxonomic patterns between groups.
 
-# in R run:
+# Typical Workflow
+1. Run "tax.shared.table" to make table
+2. Run "tax.shared.plot" to plot the results
+
+* multicomp is run in one step
+* 1. Run "tax.shared.multicomp" to make the plot
+
+
 
