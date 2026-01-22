@@ -28,7 +28,7 @@ The package includes visualization tools that generate stacked bar plots summari
 2. Run "tax.shared.plot" to plot the results
 
 * multicomp is run in one step
-* 1. Run "tax.shared.multicomp" to make the plot
+1. Run "tax.shared.multicomp" to make the plot
 
 
 
