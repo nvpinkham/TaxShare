@@ -1,120 +1,27 @@
 # TaxShare
-R package for performing unique/shared analysis
+This package implements a unique/shared taxonomic analysis to compare microbial communities between two groups of samples at a user-defined taxonomic level.
 
-![image](https://github.com/user-attachments/assets/e0cf4142-4d18-47c4-b7c6-70fd9b3d42b4)
+The analysis produces a summary table reporting the proportion of taxa that are unique to each group and those shared between groups, along with group-level abundance summaries. Statistical significance is assessed using a Wilcoxon rank-sum test, with optional false discovery rate (FDR) correction.
+
+Results can be visualized as stacked bar plots illustrating the relative contribution of group-unique and shared taxa, facilitating intuitive comparison of community structure between groups.
+
+<img width="1732" height="1272" alt="image" src="https://github.com/user-attachments/assets/ffb87013-dee5-4e3b-b621-3538de797092" />
 
 https://pubmed.ncbi.nlm.nih.gov/39998294/
 
+This R package performs a unique/shared taxonomic comparison between two groups of samples at a user-specified taxonomic level (e.g., phylum, family, genus).
+
+OTUs (or ASVs) are aggregated to the selected taxonomic rank, and each taxon is classified as:
+
+Unique to group A
+
+Unique to group B
+
+Shared between groups, with directionality based on relative abundance
+
+The resulting table reports the proportion and abundance of taxa in each category. Group differences are evaluated using a Wilcoxon rank-sum test, with optional FDR correction for multiple testing.
+
+The package includes visualization tools that generate stacked bar plots summarizing mean (or user-defined) population sizes across unique and shared taxa, enabling clear interpretation of taxonomic patterns between groups.
+
 # in R run:
-
-map <- NULL
-map$groups <- c("A", "A", "A", "A", "A",
-                "B", "B", "B", "B", "B")
-
-site <- as.data.frame(matrix(nrow = 10, ncol = 4))
-colnames(site) <- c("Mule", "White_tail", "Black_Bear", "Golden_Eagle")
-
-site$Mule <- c(5, 5, 4, 5, 3,
-               0, 0, 0, 0, 0)
-
-site$White_tail <- c(3, 5, 6, 5, 1,
-                     5, 0, 1, 4, 0)
-
-site$Black_Bear <- c(1, 0, 0, 1, 0,
-                     0, 2, 1, 0, 1)
-
-site$Golden_Eagle <- c(0, 0, 0, 0, 0,
-                       0, 1, 1, 2, 1)
-
-tax <- NULL
-tax$family <- c("Deer", "Deer", "Bear", "Eagle")
-tax$species <- colnames(site)
-
-tax.shared.plot(otu.input = site,
-                var = map$groups,
-                group1 = "A",
-                group2 = "B",
-                min.obs = 1,
-                tax.level = tax$family,
-                fdr = F,
-                round.to = 3,
-                log = F)
-
-##########################################################################
-
-
-map <- NULL
-map$groups <- c("A", "A", "A", "A", "A", "A", "A", "A",
-                "B", "B", "B", "B", "B",
-                "C", "C", "C", "C")
-
-map$season <- c("Spring", "Spring", "Spring","Spring", "Fall", "Fall", "Fall", "Fall",
-                "Spring", "Spring", "Fall", "Fall", "Fall",
-                "Spring", "Spring", "Fall", "Fall")
-
-site <- as.data.frame(matrix(nrow = 17, ncol = 4))
-colnames(site) <- c("Mule", "White_tail", "Black_Bear", "Golden_Eagle")
-
-site$Mule <- c(5, 5, 4, 4, 0,0, 0, 0,
-               0, 0, 0, 0, 0,
-               2, 0, 1, 5)
-
-site$White_tail <- c(0, 0, 0, 0, 5, 5, 5, 4,
-                     0, 0, 10, 5, 5,
-                     0, 0, 4, 1)
-
-site$Black_Bear <- c(1, 2, 1, 0, 1, 0,1, 0,
-                     2, 1, 0, 0, 0,
-                     1, 2, 0, 0)
-
-site$Golden_Eagle <- c(0, 0, 0, 0, 0, 0, 0, 0,
-                       1, 1, 2, 0, 0,
-                       0, 0, 1, 0)
-
-tax <- NULL
-tax$family <- c("Deer", "Deer", "Bear", "Eagle")
-tax$species <- colnames(site)
-
-res <- tax.shared.plot(otu.input = site,
-                       var = map$season,
-                       group1 = "Fall",
-                       group2 = "Spring",
-                       min.obs = 1,
-                       tax.level = tax$family,
-                       PresAbs = F,
-                       fdr = F,
-                       round.to = 3)
-
-
-p <- map$groups == "A"
-res <- tax.shared.plot(otu.input = site[p, ],
-                       var = map$season[p],
-                       group1 = "Spring",
-                       group2 = "Fall",
-                       tax.level = tax$family,
-                       PresAbs = F,
-                       fdr = F,
-                       round.to = 3)
-
-map$group.col.spring <- CAF::color.groups(map$groups, cols = c("green",
-                                                               "pink",
-                                                               "goldenrod"))
-
-map$group.col.fall <- CAF::color.groups(map$groups, cols = c("blue",
-                                                             "purple",
-                                                             "tomato"))
-
-res <- tax.shared.multicomp(otu.input = site,
-                            var1 = map$season,
-                            var2 = map$groups,
-                            var1.color1 = map$group.col.spring,
-                            var1.color2 = map$group.col.fall,
-                            var1.groups = unique( map$season),
-                            var2.groups = unique( map$groups),
-                            tax.level = tax$family,
-                            use.median = F,
-                            fdr = F,
-                            log = F)
-
-
 
