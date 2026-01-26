@@ -27,36 +27,10 @@ The package includes visualization tools that generate stacked bar plots summari
 1. Run "tax.shared.table" to make table
 2. Run "tax.shared.plot" to plot the results
 
-### multicomp is run in one step
+Multliple comparisons is run in one step:
 1. Run "tax.shared.multicomp" to make the plot
 
 ###### in R: ######
-<style>
-.code-box {
-  background-color: #f8f9fb;
-  border-left: 5px solid #4b6cb7;
-  padding: 16px 18px;
-  margin: 20px 0;
-  border-radius: 6px;
-  font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
-  font-size: 0.9em;
-  line-height: 1.5;
-  overflow-x: auto;
-}
-
-.code-box pre {
-  margin: 0;
-}
-
-.code-title {
-  font-weight: 600;
-  font-size: 0.85em;
-  color: #4b6cb7;
-  margin-bottom: 8px;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-</style>
 
 <div class="code-box">
   <div class="code-title">R Example</div>
