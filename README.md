@@ -31,6 +31,7 @@ The package includes visualization tools that generate stacked bar plots summari
 1. Run "tax.shared.multicomp" to make the plot
 
 ###### in R: ######
+---
 map <- NULL
 map$groups <- c("A", "A", "A", "A", "A", "A", "A", "A",
                 "B", "B", "B", "B", "B",
@@ -115,6 +116,6 @@ res2 <- tax.shared.plot(tax.shared.table_result = tax.table2,
                         color2 = "lightgreen",
                         log = F,
                         round.to = 3)
-
+---
 
 
