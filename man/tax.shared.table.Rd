@@ -42,8 +42,6 @@ tax.shared.table(
 
 \item{add.n}{Logical; if \code{TRUE}, annotate columns with the number of contributing OTUs (default \code{TRUE}).}
 
-\item{log}{Logical; if \code{TRUE}, apply log10 transformation to output (default \code{TRUE}). Ignored with a warning if \code{PresAbs = TRUE}.}
-
 \item{use.median}{Logical; if \code{TRUE}, use medians for summary statistics, otherwise use means (default \code{TRUE}).}
 }
 \value{
