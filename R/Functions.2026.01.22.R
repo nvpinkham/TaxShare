@@ -46,7 +46,6 @@ rowMeans2 <- function(m) {
 #' @param taxa2include Optional character vector of taxa names to include in the final output (pattern matching allowed).
 #' @param tax.level A vector mapping each column of `otu.input` to its taxonomic family (or desired taxonomic level).
 #' @param PresAbs Logical; if `TRUE`, use presence/absence data (default `FALSE`).
-#' @param log Logical; if `TRUE`, apply log10 transformation to output (default `TRUE`). Ignored with a warning if `PresAbs = TRUE`.
 #' @param min.obs Integer; minimum number of observations to consider a taxon "present" (default = 1).
 #' @param round.to Integer; number of decimal places to round p-values (default = 4).
 #' @param fdr Logical; if `TRUE`, apply FDR correction to p-values (default `TRUE`).
@@ -372,6 +371,109 @@ tax.shared.plot <- function (tax.shared.table_result,
          cex = 0.75)
 }
 
+#' Shared Taxa Multi-Comparison Barplot
+#'
+#' Performs repeated two-group taxonomic comparisons across multiple levels
+#' of a second grouping variable and visualizes shared and unique taxa
+#' using stacked horizontal barplots.
+#'
+#' For each level of var2, the function subsets the OTU table and
+#' compares exactly two groups defined by var1. Taxa are summarized
+#' at a specified taxonomic level, optionally transformed, and plotted
+#' with color-coding that highlights taxa unique to each group as well as
+#' taxa shared between groups.
+#'
+#' This function is intended for exploratory visualization of taxonomic
+#' overlap across experimental strata (e.g., sites, time points, host classes).
+#'
+#' @param otu.input A numeric matrix or data frame of OTU/ASV counts.
+#'   Rows correspond to samples and columns correspond to taxa.
+#'
+#' @param var1 A factor or vector defining the primary comparison variable.
+#'   MUST contain exactly TWO levels within each var2 subset.
+#'
+#' @param var2 A factor or vector defining the stratification variable.
+#'   Comparisons are performed separately for each unique value.
+#'
+#' @param var1.groups Optional character vector of levels to be includded
+#'
+#' @param var2.groups Optional character vector specifying the levels of var2
+#'  to iterate over.
+#'
+#' @param tax.level A character vector assigning each taxon to a taxonomic
+#'   level (e.g., family, genus). Length must match number of taxa.
+#'
+#' @param taxa2include Optional character vector specifying which taxa
+#'   to include. Defaults to all taxa present in \code{tax.level}.
+#'
+#' @param family.name.length Integer controlling how taxon names are truncated
+#'   or simplified for plotting.
+#'   \describe{
+#'     \item{1}{Use first taxonomic component only}
+#'     \item{2}{Trim secondary delimiters}
+#'     \item{3}{Remove delimiters but retain full name (default)}
+#'   }
+#'
+#' @param var1.color1 Colors for group 1 of var1.
+#'   May be a single color or a vector matching number of samples.
+#'
+#' @param var1.color2 Color for group 2 of var1.
+#'   May be a single color or a vector matching number of samples.
+#'
+#' @param PresAbs Logical; if TRUE, convert counts to presence/absence
+#'   before summarization.
+#'
+#' @param log Logical; if TRUE (default), log10-transform values
+#'   after adding a pseudocount of 1.
+#'
+#' @param min.obs Integer specifying the minimum number of observations
+#'   required for a taxon to be included.
+#'
+#' @param fdr Logical; if TRUE, apply false discovery rate correction
+#'   in the underlying taxonomic comparison.
+#'
+#' @param summary.fun Function used to summarize taxa abundance
+#'   (default is \code{mean}).
+#'
+#' @return A named list of matrices, one per \code{var2} group.
+#'   Each matrix contains summarized taxon abundances used for plotting.
+#'   The function is called for its side effect (plotting), but the
+#'   underlying data are returned invisibly for downstream use.
+#'
+#' @details
+#' The function internally calls \code{tax.shared.table()} to compute
+#' shared and unique taxa between two groups. Taxa are visualized as
+#' stacked horizontal bars, with color gradients indicating shared taxa.
+#'
+#' Log scaling is applied post-summarization and affects both bar lengths
+#' and reference scale annotations.
+#'
+#' Groups within \code{var2} that do not contain exactly two \code{var1}
+#' levels are skipped with a warning.
+#'
+#' @assumptions
+#' \itemize{
+#'   \item Exactly two levels of \code{var1} must be present per \code{var2}
+#'   \item OTU counts are non-negative
+#'   \item Taxonomic annotations are correctly aligned with OTU columns
+#' }
+#'
+#' @seealso
+#' \code{\link{tax.shared.table}}
+#'
+#' @examples
+#' \dontrun{
+#' tax.shared.multicomp(
+#'   otu.input = otu_table,
+#'   var1 = treatment,
+#'   var2 = site,
+#'   var1.groups = c("Control", "Treatment"),
+#'   var2.groups = c("A", "B", "C"),
+#'   tax.level = taxonomy$Family
+#' )
+#' }
+#'
+#' @export
 tax.shared.multicomp <- function (otu.input ,
                                   var1 ,
                                   var2 ,
@@ -388,6 +490,19 @@ tax.shared.multicomp <- function (otu.input ,
                                   fdr = T,
                                   summary.fun = mean){
 
+  if(missing(var1.groups)){
+    var1.groups <- unique(var1)
+  }
+  if(missing(var2.groups)){
+    var2.groups <- unique(var2)
+  }
+  if (missing(taxa2include)) {
+    n.taxa <- length(unique(tax.level))
+    taxa2include <- unique(tax.level)
+  }else{
+    n.taxa <- length(taxa2include)
+  }
+
   if (length(var1.color1) == 1) {
     var1.color1 <- rep(var1.color1, nrow(otu.input))
   }
@@ -401,13 +516,6 @@ tax.shared.multicomp <- function (otu.input ,
   }
 
   n <- length(var2.groups)
-
-  if (missing(taxa2include)) {
-    n.taxa <- length(unique(tax.level))
-    taxa2include <- unique(tax.level)
-  }else{
-    n.taxa <- length(taxa2include)
-  }
 
   add <- vector(length = n)
   add[-1] <- T
