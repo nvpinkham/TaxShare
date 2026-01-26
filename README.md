@@ -99,7 +99,7 @@ tax.table <- tax.shared.table(otu.input = site,
                               summary.fun = mean)
 
 par(mar = c(5, 10, 4, 4))
-res <- tax.shared.plot(tax.shared.table_result = tax.table,
+tax.shared.plot(tax.shared.table_result = tax.table,
                        color1 = "salmon1",
                        color2 = "lightgreen",
                        log = F,
@@ -115,7 +115,7 @@ tax.table2 <- tax.shared.table(otu.input = site,
                                fdr = F,
                                round.to = 3)
 
-res2 <- tax.shared.plot(tax.shared.table_result = tax.table2,
+tax.shared.plot(tax.shared.table_result = tax.table2,
                         color1 = "salmon1",
                         color2 = "lightgreen",
                         log = F,
