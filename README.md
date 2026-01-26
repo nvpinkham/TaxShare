@@ -30,19 +30,12 @@ The package includes visualization tools that generate stacked bar plots summari
 Multliple comparisons is run in one step:
 1. Run "tax.shared.multicomp" to make the plot
 
-###### in R: ######
-
 <div class="code-box">
   <div class="code-title">R Example</div>
   <pre><code>
-map <- NULL
-map$groups <- c("A","A","B","B")
-map$season <- c("Spring","Fall","Spring","Fall")
-  </code></pre>
-</div>
 
 
----
+
 map <- NULL
 map$groups <- c("A", "A", "A", "A", "A", "A", "A", "A",
                 "B", "B", "B", "B", "B",
@@ -127,6 +120,13 @@ res2 <- tax.shared.plot(tax.shared.table_result = tax.table2,
                         color2 = "lightgreen",
                         log = F,
                         round.to = 3)
+    
+  </code></pre>
+</div>
+
+
+---
+
 ---
 
 
