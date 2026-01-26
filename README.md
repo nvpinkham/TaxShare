@@ -27,8 +27,94 @@ The package includes visualization tools that generate stacked bar plots summari
 1. Run "tax.shared.table" to make table
 2. Run "tax.shared.plot" to plot the results
 
-* multicomp is run in one step
+### multicomp is run in one step
 1. Run "tax.shared.multicomp" to make the plot
+
+###### in R: ######
+map <- NULL
+map$groups <- c("A", "A", "A", "A", "A", "A", "A", "A",
+                "B", "B", "B", "B", "B",
+                "C", "C", "C", "C")
+
+map$season <- c("Spring", "Spring", "Spring","Spring", "Fall", "Fall", "Fall", "Fall",
+                "Spring", "Spring", "Fall", "Fall", "Fall",
+                "Spring", "Spring", "Fall", "Fall")
+
+site <- as.data.frame(matrix(nrow = 17, ncol = 5))
+colnames(site) <- c("Mule", "White_tail", "Black_Bear", "Beaver",
+                    "Golden_Eagle")
+
+rownames(site) <- paste0(rownames(site), ".", map$groups)
+
+site$Mule <- c(25, 25, 14, 14, 0,0, 0, 0,
+               0, 0, 0, 0, 0,
+               21, 0, 11, 15)
+#site$White_tail <- c(5, 5, 5, 5, 5, 5, 5, 5)
+site$White_tail <- c(0, 0, 0, 0, 5, 5, 5, 4,
+                     0, 0, 10, 5, 5,
+                     0, 0, 4, 1)
+
+site$Black_Bear <- c(1, 2, 1, 0, 1, 0,1, 0,
+                     2, 1, 0, 0, 0,
+                     1, 2, 0, 0)
+
+site$Beaver <- c(0, 0, 0, 0, 0, 0, 0, 0,
+                 0, 0, 1, 1, 1,
+                 0, 0, 0, 0)
+
+#site$Golden_Eagle <- c(0, 0, 0, 0, 0, 0, 1, 1,  0, 0, 0, 0)
+#site$Golden_Eagle <- c(0, 1, 0, 0, 2, 1, 0, 0,  2, 3, 0, 0)
+site$Golden_Eagle <- c(0, 0, 0, 0, 0, 0, 0, 0,
+                       1, 1, 2, 0, 0,
+                       0, 0, 1, 0)
+
+#site$Golden_Eagle <- 1
+
+tax <- NULL
+tax$family <- c("Deer", "Deer", "Bear", "Beaver",
+                "Eagle")
+tax$class <- c("Mammalia", "Mammalia", "Mammalia", "Mammalia",
+               "Aves")
+tax$species <- colnames(site)
+
+taxa2include <- unique(tax$family )
+
+site[map$groups %in% c("A", "B" ), ]
+
+
+tax.table <- tax.shared.table(otu.input = site,
+                              var = map$groups,
+                              group1 = "A",
+                              group2 = "B",
+                              min.obs = 1,
+                              tax.level = tax$class,
+                              PresAbs = F,
+                              fdr = T,
+                              round.to = 3,
+                              summary.fun = mean)
+
+par(mar = c(5, 10, 4, 4))
+res <- tax.shared.plot(tax.shared.table_result = tax.table,
+                       color1 = "salmon1",
+                       color2 = "lightgreen",
+                       log = F,
+                       round.to = 3)
+
+tax.table2 <- tax.shared.table(otu.input = site,
+                               var = map$groups,
+                               group1 = "A",
+                               group2 = "B",
+                               min.obs = 1,
+                               tax.level = tax$family,
+                               PresAbs = F,
+                               fdr = F,
+                               round.to = 3)
+
+res2 <- tax.shared.plot(tax.shared.table_result = tax.table2,
+                        color1 = "salmon1",
+                        color2 = "lightgreen",
+                        log = F,
+                        round.to = 3)
 
 
 
